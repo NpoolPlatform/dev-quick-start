@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      nodePort: 30306
+      targetPort: mysql
+  selector:
+    app: mysql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - image: entropypool/mysql:5.7
+          name: mysql
+          env:
+          - name: ENV_ENVIRONMENT_TARGET
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.target
+          - name: ENV_CONSUL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.consul_host
+          - name: ENV_CONSUL_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.consul_port
+          - name: ENV_CLUSTER_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-password-secret
+                key: rootpassword
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+            - name: mysql-config
+              mountPath: /etc/mysql/conf.d/my.cnf
+              subPath: my.cnf
+      volumes:
+        - name: mysql-persistent-storage
+          emptyDir: {}
+        - name: mysql-config
+          configMap:
+            name: mysql-db-config
+            items:
+              - key: my.cnf
+                path: my.cnf

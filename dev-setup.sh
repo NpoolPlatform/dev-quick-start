@@ -39,7 +39,7 @@ function install_tools() {
   sudo echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
   sudo apt-get update
-  sudo apt install -y apt-transport-https gnupg2 curl docker.io kubectl git
+  sudo apt install -y apt-transport-https gnupg2 curl docker.io kubectl git mysql-client redis-tools
   
   sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
   sudo chmod +x minikube-linux-amd64
@@ -76,12 +76,22 @@ function install_nginx() {
   sudo nginx -s reload
 }
 
+function install_mysql() {
+  kubectl create secret generic mysql-password-secret --from-literal=rootpassword=12345679 -n kube-system
+  kubectl apply -k environment-definitions/ -n kube-system
+  kubectl apply -k mysql-single/ -n kube-system
+  MYSQL_IP=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $1 }'`
+  MYSQL_PORT=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $2 }'`
+  sudo ./mysql-single/db-init.sh
+}
+
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
 #  add_minikube_user
   install_tools
   start_minikube
   install_consul
   install_nginx
+  install_mysql
 fi
 
 if [ "x$ACTION_TYPE" == "xdestroy" ]; then

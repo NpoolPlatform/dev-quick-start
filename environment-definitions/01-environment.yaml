@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: system-environment
+  namespace: kube-system
+data:
+  environment.target: "development"
+  environment.consul_host: "172.21.108.94"
+  environment.consul_port: "8500"
