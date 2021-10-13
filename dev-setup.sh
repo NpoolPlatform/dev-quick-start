@@ -49,7 +49,7 @@ function install_tools() {
 function start_minikube() {
   sudo gpasswd -a minikube docker
   minikube start
-#  minikube start --driver=docker --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers
+#  minikube start --driver=docker --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --extra-config=apiserver.service-node-port-range=3000-60000
 
   check_pods_status
 }
@@ -80,9 +80,16 @@ function install_mysql() {
   kubectl create secret generic mysql-password-secret --from-literal=rootpassword=12345679 -n kube-system
   kubectl apply -k environment-definitions/ -n kube-system
   kubectl apply -k mysql-single/ -n kube-system
+  check_pods_status
   MYSQL_IP=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $1 }'`
   MYSQL_PORT=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $2 }'`
   sudo ./mysql-single/db-init.sh
+}
+
+function install_redis() {
+  kubectl apply -f redis-cluster/01-redis-config -n kube-system
+  kubectl apply -f redis-cluster/02-deployment-service.yaml -n kube-system
+  check_pods_status
 }
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
@@ -92,6 +99,7 @@ if [ "x$ACTION_TYPE" == "xsetup" ]; then
   install_consul
   install_nginx
   install_mysql
+  install_redis
 fi
 
 if [ "x$ACTION_TYPE" == "xdestroy" ]; then
@@ -100,5 +108,5 @@ if [ "x$ACTION_TYPE" == "xdestroy" ]; then
 fi
 
 if [ "x$ACTION_type" == "xinfo" ]; then
-  echo "into"
+  echo "show k8s info"
 fi

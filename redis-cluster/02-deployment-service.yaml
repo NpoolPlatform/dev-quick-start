@@ -2,31 +2,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis-singleton # Unique name for the deployment
+  name: redis-singleton
   labels:
-    app: redis       # Labels to be applied to this deployment
+    app: redis
 spec:
   selector:
-    matchLabels:     # This deployment applies to the Pods matching these labels
+    matchLabels:
       app: redis
       role: master
       tier: backend
-  replicas: 1        # Run a single pod in the deployment
-  template:          # Template for the pods that will be created by this deployment
+  replicas: 1
+  template:
     metadata:
-      labels:        # Labels to be applied to the Pods in this deployment
+      labels:
         app: redis
         role: master
         tier: backend
-    spec:            # Spec for the container which will be run inside the Pod.
+    spec:
       containers:
         - name: redis-singleton
-          image: redis
+          image: entropypool/redis:5
           resources:
             requests:
               cpu: 100m
               memory: 100Mi
-#          command: ["redis-server","/etc/redis/redis.conf"]
+#          command: ["redis-server","/etc/redis/redis.conf"]a
+          env:
+          - name: ENV_ENVIRONMENT_TARGET
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.target
+          - name: ENV_CONSUL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.consul_host
+          - name: ENV_CONSUL_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.consul_port
+          - name: ENV_CLUSTER_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           command:
             - redis-server
             - /etc/redis/redis.conf
@@ -49,20 +69,20 @@ spec:
                 path: redis.conf
 ---
 apiVersion: v1
-kind: Service        # Type of Kubernetes resource
+kind: Service
 metadata:
-  name: redis-svc # Name of the Kubernetes resource
-  labels:            # Labels that will be applied to this resource
+  name: redis-svc
+  labels:
     app: redis
     role: master
     tier: backend
 spec:
   type: NodePort
   ports:
-    - port: 6379       # Map incoming connections on port 6379 to the target port 6379 of the Pod
+    - port: 6379
       targetPort: 6379
       nodePort: 31379
-  selector:          # Map any Pod with the specified labels to this service
+  selector:
     app: redis
     role: master
     tier: backend

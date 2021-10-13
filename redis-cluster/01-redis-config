@@ -4,7 +4,7 @@ metadata:
   name: redis-config
 data:
   redis.conf: |
-    requirepass 123456
+    requirepass 12345679
     protected-mode no
     port 6379
     tcp-backlog 511
