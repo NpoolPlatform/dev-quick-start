@@ -49,20 +49,8 @@ function install_tools() {
 function start_minikube() {
   sudo gpasswd -a minikube docker
   minikube start
-#  all_proxy= minikube start --driver=docker --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers
-  check_pods_status
-}
+#  minikube start --driver=docker --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers
 
-function apply_nfs_server() {
-  sudo apt install -y nfs-kernel-server
-  sudo mkdir /var/share
-  sudo chown nobody:nogroup /var/share/
-  sudo sh -c "sed -i '/var\/share/d' /etc/exports"
-  sudo sh -c "echo '/var/share *(rw,sync,no_subtree_check,no_root_squash)' >> /etc/exports"
-  sudo systemctl restart nfs-server
-  sudo cp nfs-provisioner/nfs-provisioner.yaml ./
-  sudo sed -i "s/127.0.0.1/$MY_HOSTIP/g" nfs-provisioner.yaml
-  kubectl apply -f nfs-provisioner.yaml -n kube-system
   check_pods_status
 }
 
@@ -90,10 +78,9 @@ function install_nginx() {
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
 #  add_minikube_user
-#  install_tools
-#  start_minikube
-#  apply_nfs_server
-#  install_consul
+  install_tools
+  start_minikube
+  install_consul
   install_nginx
 fi
 
