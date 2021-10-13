@@ -73,7 +73,9 @@ function install_consul() {
   sudo cp ./helm-tools/helm /usr/local/bin/
   helm repo add hashicorp https://helm.releases.hashicorp.com
   helm install -f consul-cluster/01-config.yaml consul hashicorp/consul -n kube-system
+  check_pods_status
   kubectl apply -f consul-cluster/02-counting.yaml -n kube-system
+  check_pods_status
   kubectl apply -f consul-cluster/03-dashboard.yaml -n kube-system
   check_pods_status
 }
