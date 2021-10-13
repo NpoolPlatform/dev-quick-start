@@ -41,9 +41,9 @@ function install_tools() {
   sudo apt-get update
   sudo apt install -y apt-transport-https gnupg2 curl docker.io kubectl git
   
-#  sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-#  sudo chmod +x minikube-linux-amd64
-  sudo install ./minikube-tools/minikube-linux-amd64 /usr/local/bin/minikube
+  sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+  sudo chmod +x minikube-linux-amd64
+  sudo install ./minikube-linux-amd64 /usr/local/bin/minikube
 }
 
 function start_minikube() {
