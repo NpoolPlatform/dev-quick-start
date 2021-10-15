@@ -5,8 +5,9 @@ curuser=`whoami`
 
 LOG_FILE=/var/log/dev-quick-start.log
 function usage() {
-  echo " $1 -[t]"
+  echo " $1 -[ti]"
   echo "    -t action type [setup|destroy]"
+  echo "    -i my host ip"
 }
 
 function info() {
@@ -36,13 +37,23 @@ function check_pods_status() {
   done
 }
 
+function check_consul_server() {
+  while true; do
+    sleep 5
+    curl http://$MY_HOSTIP:8500/v1/agent/services
+    [ 0 -eq $? ] && sleep 30 && continue
+    break
+  done
+}
+
+
 function install_tools() {
 #  sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
   sudo cp ./k8s-keyring/kubernetes-archive-keyring.gpg /usr/share/keyrings/kubernetes-archive-keyring.gpg
   sudo echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
   sudo apt-get update
-  sudo apt install -y apt-transport-https gnupg2 curl docker.io kubectl git mysql-client redis-tools
+  sudo apt install -y apt-transport-https gnupg2 curl docker.io kubectl git mysql-client redis-tools nginx
   
   sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
   sudo chmod +x minikube-linux-amd64
@@ -69,20 +80,19 @@ function install_consul() {
   check_pods_status
   kubectl apply -f consul-cluster/03-dashboard.yaml -n kube-system
   check_pods_status
-}
-
-function install_nginx() {
-  sudo apt install nginx -y
   consuladdress=`minikube service list | grep consul-ui | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
   sudo cp nginx-conf/consul.conf /etc/nginx/conf.d/consul.conf
   sudo sed -i "s/127.0.0.1/$consuladdress/g" /etc/nginx/conf.d/consul.conf
   sudo nginx -s reload
+  check_consul_server
 }
 
 function install_mysql() {
   kubectl create secret generic mysql-password-secret --from-literal=rootpassword=12345679 -n kube-system
   kubectl apply -k environment-definitions/ -n kube-system
-  kubectl apply -k mysql-single/ -n kube-system
+  kubectl apply -f mysql-single/01-mysql-configmap.yaml -n kube-system
+  kubectl apply -f mysql-single/02-pv-pvc.yaml -n kube-system
+  kubectl apply -f mysql-single/03-deployment-service.yaml -n kube-system
   check_pods_status
 #  MYSQL_IP=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $1 }'`
 #  MYSQL_PORT=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $2 }'`
@@ -114,6 +124,7 @@ fi
 if [ "x$ACTION_TYPE" == "xdestroy" ]; then
   minikube delete
   sudo rm /home/minikube/.minikube/ -rf
+  sudo iptables -F
 fi
 
 if [ "x$ACTION_type" == "xinfo" ]; then
