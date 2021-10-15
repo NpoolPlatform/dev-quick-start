@@ -40,7 +40,7 @@ function check_pods_status() {
 function check_consul_server() {
   while true; do
     sleep 5
-    curl http://$MY_HOSTIP:8500/v1/agent/services
+    all_proxy= curl http://$MY_HOSTIP:8500/v1/agent/services
     [ ! 0 -eq $? ] && sleep 30 && continue
     break
   done
@@ -112,6 +112,7 @@ function install_apollo() {
   kubectl apply -f apollo-cluster/04-apollo-admin.yml -n kube-system
   kubectl apply -f apollo-cluster/05-apollo-portal-configmap.yaml -n kube-system
   kubectl apply -f apollo-cluster/06-apollo-portal.yml -n kube-system
+  check_pods_status
 }
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
