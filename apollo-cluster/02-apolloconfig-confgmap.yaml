@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apollo-config-deploy
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apollo-config
+  template:
+    metadata:
+      labels:
+        app: apollo-config
+    spec:
+      containers:
+      - name: apollo-config
+        image: entropypool/apollo-configservice:1.9.1
+        ports:
+        - containerPort: 8080
+          name: httpport
+        resources:
+          limits:
+            cpu: 200m 
+            memory: 512Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        volumeMounts:
+        - name: config-volume
+          mountPath: apolloconfig/apollo-configservice/config
+        env:
+          - name: ENV_ENVIRONMENT_TARGET
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.target
+          - name: ENV_CONSUL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.consul_host
+          - name: ENV_CONSUL_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: system-environment
+                key: environment.consul_port
+          - name: ENV_CLUSTER_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-password-secret
+                key: rootpassword
+      volumes:
+      - name: config-volume
+        configMap:
+          name: apollo-config-configmap
+
+---
+apiVersion: v1 
+kind: Service
+metadata:
+  name: apollo-config-svc
+  namespace: kube-system
+  labels:
+    app: apollo-config-svc
+spec:
+  selector:
+    app: apollo-config
+  type: NodePort
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+    nodePort: 30080

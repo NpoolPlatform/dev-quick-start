@@ -48,8 +48,8 @@ function install_tools() {
 
 function start_minikube() {
   sudo gpasswd -a minikube docker
-  minikube start
-#  minikube start --driver=docker --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --extra-config=apiserver.service-node-port-range=3000-60000
+  minikube start --driver=docker --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --extra-config=apiserver.service-node-port-range=3000-60000
+#  minikube start
 
   check_pods_status
 }
@@ -81,15 +81,20 @@ function install_mysql() {
   kubectl apply -k environment-definitions/ -n kube-system
   kubectl apply -k mysql-single/ -n kube-system
   check_pods_status
-  MYSQL_IP=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $1 }'`
-  MYSQL_PORT=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $2 }'`
-  sudo ./mysql-single/db-init.sh
+#  MYSQL_IP=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $1 }'`
+#  MYSQL_PORT=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $2 }'`
+#  sudo ./mysql-single/db-init.sh
 }
 
 function install_redis() {
   kubectl apply -f redis-cluster/01-redis-config -n kube-system
   kubectl apply -f redis-cluster/02-deployment-service.yaml -n kube-system
   check_pods_status
+}
+
+function install_apollo() {
+  helm install apollo-service --namespace kube-system -f apollo-cluster/values.service.yaml apollo-cluster/chart-service
+  helm install apollo-portal --namespace kube-system -f apollo-cluster/values.portal.yaml apollo-cluster/chart-portal
 }
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
@@ -100,6 +105,7 @@ if [ "x$ACTION_TYPE" == "xsetup" ]; then
   install_nginx
   install_mysql
   install_redis
+  install_apollo
 fi
 
 if [ "x$ACTION_TYPE" == "xdestroy" ]; then
