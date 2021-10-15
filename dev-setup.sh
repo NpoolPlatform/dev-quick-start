@@ -55,9 +55,12 @@ function install_tools() {
   sudo apt-get update
   sudo apt install -y apt-transport-https gnupg2 curl docker.io kubectl git mysql-client redis-tools nginx
   
-  sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-  sudo chmod +x minikube-linux-amd64
-  sudo install ./minikube-linux-amd64 /usr/local/bin/minikube
+  ls /usr/local/bin/ | grep minikube
+  if [ ! 0 -eq $? ]; then
+    sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    sudo chmod +x minikube-linux-amd64
+    sudo install ./minikube-linux-amd64 /usr/local/bin/minikube
+  fi
 }
 
 function start_minikube() {
@@ -113,6 +116,16 @@ function install_apollo() {
   kubectl apply -f apollo-cluster/05-apollo-portal-configmap.yaml -n kube-system
   kubectl apply -f apollo-cluster/06-apollo-portal.yml -n kube-system
   check_pods_status
+  apolloportaladdress=`minikube service list | grep apollo-portal | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
+  sudo cp nginx-conf/apollo-portal.conf /etc/nginx/conf.d/apollo-portal.conf
+  sudo sed -i "s/127.0.0.1/$apolloportaladdress/g" /etc/nginx/conf.d/apollo-portal.conf
+  apolloadminaddress=`minikube service list | grep apollo-admin | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
+  sudo cp nginx-conf/apollo-adminservice.conf /etc/nginx/conf.d/apollo-adminservice.conf
+  sudo sed -i "s/127.0.0.1/$apolloadminaddress/g" /etc/nginx/conf.d/apollo-adminservice.conf
+  apolloconfigaddress=`minikube service list | grep apollo-config | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
+  sudo cp nginx-conf/apollo-configservice.conf /etc/nginx/conf.d/apollo-configservice.conf
+  sudo sed -i "s/127.0.0.1/$apolloconfigaddress/g" /etc/nginx/conf.d/apollo-configservice.conf
+  sudo nginx -s reload
 }
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
