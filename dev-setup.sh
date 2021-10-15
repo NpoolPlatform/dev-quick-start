@@ -41,7 +41,7 @@ function check_consul_server() {
   while true; do
     sleep 5
     curl http://$MY_HOSTIP:8500/v1/agent/services
-    [ 0 -eq $? ] && sleep 30 && continue
+    [ ! 0 -eq $? ] && sleep 30 && continue
     break
   done
 }
@@ -106,8 +106,12 @@ function install_redis() {
 }
 
 function install_apollo() {
-  helm install apollo-service --namespace kube-system -f apollo-cluster/values.service.yaml apollo-cluster/chart-service
-  helm install apollo-portal --namespace kube-system -f apollo-cluster/values.portal.yaml apollo-cluster/chart-portal
+  kubectl apply -f apollo-cluster/01-apollo-config-configmap.yaml -n kube-system
+  kubectl apply -f apollo-cluster/02-apolloconfig-confgmap.yaml -n kube-system
+  kubectl apply -f apollo-cluster/03-apollo-admin-configmap.yaml -n kube-system
+  kubectl apply -f apollo-cluster/04-apollo-admin.yml -n kube-system
+  kubectl apply -f apollo-cluster/05-apollo-portal-configmap.yaml -n kube-system
+  kubectl apply -f apollo-cluster/06-apollo-portal.yml -n kube-system
 }
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
@@ -115,7 +119,6 @@ if [ "x$ACTION_TYPE" == "xsetup" ]; then
   install_tools
   start_minikube
   install_consul
-  install_nginx
   install_mysql
   install_redis
   install_apollo
