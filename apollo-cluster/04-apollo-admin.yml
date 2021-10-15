@@ -26,6 +26,9 @@ spec:
           requests:
             cpu: 50m 
             memory: 128Mi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /apollo-adminservice/config
         env:
           - name: ENV_ENVIRONMENT_TARGET
             valueFrom:

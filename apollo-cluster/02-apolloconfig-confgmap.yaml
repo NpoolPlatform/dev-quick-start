@@ -28,7 +28,7 @@ spec:
             memory: 128Mi
         volumeMounts:
         - name: config-volume
-          mountPath: apolloconfig/apollo-configservice/config
+          mountPath: /apollo-configservice/config
         env:
           - name: ENV_ENVIRONMENT_TARGET
             valueFrom:
