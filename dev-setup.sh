@@ -1,5 +1,8 @@
 #! /bin/bash
 
+curuser=`whoami`
+[ "x$curuser" != "xminikube" ] && echo "You shoud login as minikube~" && exit 0
+
 LOG_FILE=/var/log/dev-quick-start.log
 function usage() {
   echo " $1 -[t]"
