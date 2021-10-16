@@ -128,6 +128,15 @@ function install_apollo() {
   sudo nginx -s reload
 }
 
+function install_rabbitmq() {
+  helm install rabbitmq -f values.service.yaml --namespace kube-system ./rabbitmq
+  check_pods_status
+  rabbitmqaddress=`minikube service list | grep 15672 | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
+  sudo cp nginx-conf/rabbitmq.conf /etc/nginx/conf.d/rabbitmq.conf
+  sudo sed -i "s/127.0.0.1/$rabbitmqaddress/g" /etc/nginx/conf.d/rabbitmq.conf
+  sudo nginx -s reload
+}
+
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
 #  add_minikube_user
   install_tools
@@ -136,6 +145,7 @@ if [ "x$ACTION_TYPE" == "xsetup" ]; then
   install_mysql
   install_redis
   install_apollo
+  install_rabbitmq
 fi
 
 if [ "x$ACTION_TYPE" == "xdestroy" ]; then

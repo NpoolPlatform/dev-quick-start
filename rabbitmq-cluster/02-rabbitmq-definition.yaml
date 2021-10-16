@@ -1,9 +1,0 @@
-apiVersion: rabbitmq.com/v1beta1
-kind: RabbitmqCluster
-metadata:
-  name: rabbitmqcluster
-spec:
-  replicas: 1
-  image: rabbitmqoperator/cluster-operator:1.10.0
-  service:
-    type: NodePort
