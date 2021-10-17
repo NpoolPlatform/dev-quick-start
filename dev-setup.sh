@@ -131,7 +131,7 @@ function install_apollo() {
 function install_rabbitmq() {
   export RABBITMQ_PASSWORD=12345679
   envsubst < rabbitmq-cluster/secret.yaml | kubectl apply -f -
-  helm install rabbitmq -f values.service.yaml --namespace kube-system ./rabbitmq
+  helm install rabbitmq -f rabbitmq-cluster/values.service.yaml --namespace kube-system ./rabbitmq
   check_pods_status
   rabbitmqaddress=`minikube service list | grep 15672 | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
   sudo cp nginx-conf/rabbitmq.conf /etc/nginx/conf.d/rabbitmq.conf
