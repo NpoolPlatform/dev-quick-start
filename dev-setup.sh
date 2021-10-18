@@ -67,7 +67,6 @@ function install_tools() {
 function start_minikube() {
   sudo gpasswd -a minikube docker
   minikube start --driver=docker --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --extra-config=apiserver.service-node-port-range=3000-60000
-#  minikube start
 
   check_pods_status
 }
@@ -98,9 +97,6 @@ function install_mysql() {
   kubectl apply -f mysql-single/02-pv-pvc.yaml -n kube-system
   kubectl apply -f mysql-single/03-deployment-service.yaml -n kube-system
   check_pods_status
-#  MYSQL_IP=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $1 }'`
-#  MYSQL_PORT=`minikube service list | grep mysql | awk '{ print $8 }' | awk -F '//' '{ print $2 }' | awk -F ':' '{ print $2 }'`
-#  sudo ./mysql-single/db-init.sh
 }
 
 function install_redis() {
