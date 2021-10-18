@@ -26,6 +26,7 @@ function add_minikube_user() {
   echo y | adduser minikube
   echo minikube:12345679 | chpasswd
   echo "minikube ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/minikube
+  gpasswd -a minikube docker
 }
 
 function check_pods_status() {

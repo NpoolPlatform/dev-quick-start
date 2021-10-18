@@ -1,10 +1,11 @@
 # dev-quick-start
 
-## 创建minikube用户
+## 创建minikube用户(root用户执行)
 ```
 echo y | adduser minikube
 echo minikube:12345679 | chpasswd
-echo "minikube ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/minikube
+echo "minikube ALL = (root) NOPASSWD:ALL" | tee /etc/sudoers.d/minikube
+gpasswd -a minikube docker
 ```
 
 ## 快速搭建k8s测试环境
