@@ -11,7 +11,7 @@ echo "minikube ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/minikube
 - 切换到minikube用户后执行命令 ./dev-setup.sh -t setup -i $MY_HOSTIP
 
 
-## apollo添加app对应的配置
+## apollo添加基础服务配置（http://$MY_HOSTIP:8070/）
 - 创建应用
 - 创建该应用development集群
 - 创建mysql-npool-top namespace以及key,value
