@@ -28,7 +28,7 @@ echo "minikube ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/minikube
 
 ## 在运行k8s集群的虚机上运行开发环境docker
 ```
-docker run -d -e ENV_ENVIRONMENT_TARGET=developnment -e ENV_CONSUL_HOST=http://$MY_HOSTIP -e ENV_CONSUL_PORT=8500 --name devtest -v /sys/fs/cgroup:/sys/fs/cgroup:ro --privileged catwo/devtest
+docker run -d -e ENV_ENVIRONMENT_TARGET=developnment -e ENV_CONSUL_HOST=http://$MY_HOSTIP -e ENV_CONSUL_PORT=8500 -e PATH=/go-go1.16.5/bin:$PATH -e GOPROXY=https://goproxy.cn,direct --name devtest -v /sys/fs/cgroup:/sys/fs/cgroup:ro --privileged catwo/devtest
 docker exec -it devtest /bin/bash
 /etc/hosts添加以下内容
 $MY_HOSTIP apollo-configservice.kube-system.svc.cluster.local
