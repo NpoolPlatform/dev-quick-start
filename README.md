@@ -71,3 +71,8 @@ cd cmd/$app-service/
 su minikube
 ./dev-setup.sh -t destroy
 ```
+
+## 服务地址
+- consul ```http://$MY_HOSTIP:8500/```
+- apollo ```http://$MY_HOSTIP:8070/```
+- rabbitmq ```http://$MY_HOSTIP:15672/```
