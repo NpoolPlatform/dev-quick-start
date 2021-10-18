@@ -133,7 +133,7 @@ function install_rabbitmq() {
   sudo cp nginx-conf/rabbitmq.conf /etc/nginx/conf.d/rabbitmq.conf
   sudo sed -i "s/127.0.0.1/$rabbitmqaddress/g" /etc/nginx/conf.d/rabbitmq.conf
 
-  sudo cp nginx-conf/nginx.conf /erc/nginx/nginx.conf
+  sudo cp nginx-conf/nginx.conf /etc/nginx/nginx.conf
   sudo mkdir -p /etc/nginx/stream.conf.d
   sudo cp nginx-conf/rabbitmq-epmd.conf /etc/nginx/stream.conf.d/rabbitmq-epmd.conf
   rabbitmqstreamaddress=`minikube service list | grep -w 5672 | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
