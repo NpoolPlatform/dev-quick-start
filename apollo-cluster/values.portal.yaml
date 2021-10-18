@@ -1,0 +1,7 @@
+config:
+  envs: development
+  metaServers:
+    development: http://apollo-configservice.kube-system:8080
+replicaCount: 1
+service:
+  type: NodePort

@@ -1,0 +1,23 @@
+configService:
+  replicaCount: 1
+  fullNameOverride: "apollo-configservice"
+  image:
+    repository: entropypool/apollo-configservice
+    tag: 1.9.1
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+
+adminService:
+  replicaCount: 1
+  fullNameOverride: "apollo-adminservice"
+  image:
+    repository: entropypool/apollo-adminservice
+    tag: 1.9.1
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+
+configdb:
+  connectionStringProperties: characterEncoding=utf8&useSSL=false
+

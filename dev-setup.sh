@@ -109,12 +109,8 @@ function install_redis() {
 }
 
 function install_apollo() {
-  kubectl apply -f apollo-cluster/01-apollo-config-configmap.yaml -n kube-system
-  kubectl apply -f apollo-cluster/02-apolloconfig-confgmap.yaml -n kube-system
-  kubectl apply -f apollo-cluster/03-apollo-admin-configmap.yaml -n kube-system
-  kubectl apply -f apollo-cluster/04-apollo-admin.yml -n kube-system
-  kubectl apply -f apollo-cluster/05-apollo-portal-configmap.yaml -n kube-system
-  kubectl apply -f apollo-cluster/06-apollo-portal.yml -n kube-system
+  helm install apollo-service --namespace kube-system -f apollo-cluster/values.service.yaml apollo-cluster/chart-service
+  helm install apollo-portal --namespace kube-system -f apollo-cluster/values.portal.yaml apollo-cluster//chart-portal
   check_pods_status
   apolloportaladdress=`minikube service list | grep apollo-portal | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
   sudo cp nginx-conf/apollo-portal.conf /etc/nginx/conf.d/apollo-portal.conf
@@ -136,6 +132,12 @@ function install_rabbitmq() {
   rabbitmqaddress=`minikube service list | grep 15672 | awk '{ print $6 }' | awk -F '//' '{ print $2 }'`
   sudo cp nginx-conf/rabbitmq.conf /etc/nginx/conf.d/rabbitmq.conf
   sudo sed -i "s/127.0.0.1/$rabbitmqaddress/g" /etc/nginx/conf.d/rabbitmq.conf
+
+  sudo cp nginx-conf/nginx.conf /erc/nginx/nginx.conf
+  sudo mkdir -p /etc/nginx/stream.conf.d
+  sudo cp nginx-conf/rabbitmq-epmd.conf /etc/nginx/stream.conf.d/rabbitmq-epmd.conf
+  rabbitmqstreamaddress=`minikube service list | grep -w 5672 | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
+  sudo sed -i "s/127.0.0.1/$rabbitmqstreamaddress/g" /etc/nginx/conf.d/rabbitmq-epmd.conf
   sudo nginx -s reload
 }
 
