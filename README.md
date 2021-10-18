@@ -52,6 +52,7 @@ apphost=`cat cmd/*/*.viper.yaml | grep hostname | awk '{print $2}' | sed 's/"//g
 
 ## 创建app需要的vhost以及权限设置（宿主机切换minikube用户执行）
 ```
+su minikube
 kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $apphost
 kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissions -p $apphost user ".*" ".*" ".*"
 ```
