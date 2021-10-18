@@ -100,8 +100,11 @@ function install_mysql() {
 }
 
 function install_redis() {
-  kubectl apply -f redis-cluster/01-redis-config -n kube-system
-  kubectl apply -f redis-cluster/02-deployment-service.yaml -n kube-system
+  export REDIS_PASSWORD=12345679
+  envsubst < redis-cluster/secret.yaml | kubectl apply -f -
+  kubectl apply -f redis-cluster/01-configmap.yaml -n kube-system
+  kubectl apply -f redis-cluster/02-headless-service.yaml -n kube-system
+  kubectl apply -f redis-cluster/03-statefulset.yaml -n kube-system
   check_pods_status
 }
 
