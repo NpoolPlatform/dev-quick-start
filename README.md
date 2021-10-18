@@ -28,7 +28,7 @@ gpasswd -a minikube docker
   - username:user
   - password:12345679
 
-## 开始构建你的app（k8s环境中）
+## 开始构建你的app（k8s pod中执行）
 ```
 su minikube
 minikube ssh
