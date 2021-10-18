@@ -56,8 +56,13 @@ kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $ap
 kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissions -p $apphost user ".*" ".*" ".*"
 ```
 
-## 运行app server（docker内执行）
+## 运行app server（k8s pod中执行）
 ```
+su minikube
+minikube ssh
+dockerid=`docker ps -a | grep devtest | awk '{ print $1 }'`
+docker exec -it $dockerid /bin/bash
+cd $appname
 cp output/linux/amd64/$app-service cmd/$appname/
 cd cmd/$app-service/
 ./$app-service run
