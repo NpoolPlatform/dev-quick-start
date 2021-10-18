@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service-sample
+  name: devtest
   namespace: kube-system
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: service-sample
+      app: devtest
   template:
     metadata:
       labels:
-        app: service-sample
+        app: devtest
     spec:
       containers:
-      - name: service-sample
+      - name: devtest
         image: catwo/devtest
         imagePullPolicy: IfNotPresent
         env:
@@ -42,7 +42,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-sample
+  name: devtest
   namespace: kube-system
 spec:
   ports:
