@@ -65,3 +65,9 @@ cp output/linux/amd64/$app-service cmd/$appname/
 cd cmd/$app-service/
 ./$app-service run
 ```
+
+# 清除k8s环境
+```
+su minikube
+./dev-setup.sh -t destroy
+```
