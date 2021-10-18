@@ -141,6 +141,10 @@ function install_rabbitmq() {
   sudo nginx -s reload
 }
 
+function run_devtest() {
+  kubectl apply -f dev-docker/01-service-sample.yaml -n kube-system
+}
+
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
 #  add_minikube_user
   install_tools
@@ -150,6 +154,7 @@ if [ "x$ACTION_TYPE" == "xsetup" ]; then
   install_redis
   install_apollo
   install_rabbitmq
+  run_devtest
 fi
 
 if [ "x$ACTION_TYPE" == "xdestroy" ]; then

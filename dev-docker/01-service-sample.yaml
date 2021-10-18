@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-sample
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-sample
+  template:
+    metadata:
+      labels:
+        app: service-sample
+    spec:
+      containers:
+      - name: service-sample
+        image: catwo/devtest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ENV_ENVIRONMENT_TARGET
+          valueFrom:
+            configMapKeyRef:
+              name: system-environment
+              key: environment.target
+        - name: ENV_CONSUL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: system-environment
+              key: environment.consul_host
+        - name: ENV_CONSUL_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: system-environment
+              key: environment.consul_port
+        - name: PATH
+          value: "/go-go1.16.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        - name: GOPROXY
+          value: "https://goproxy.cn,direct"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-sample
+  namespace: kube-system
+spec:
+  ports:
+  - name: api
+    port: 8081
+
