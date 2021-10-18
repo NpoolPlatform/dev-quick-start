@@ -8,7 +8,7 @@ echo "minikube ALL = (root) NOPASSWD:ALL" | tee /etc/sudoers.d/minikube
 gpasswd -a minikube docker
 ```
 
-## 快速搭建k8s测试环境（miniku用户执行）
+## 快速搭建k8s测试环境（minikube用户执行）
 - su minikube
 - ./dev-setup.sh -t setup -i $MY_HOSTIP
 
@@ -68,7 +68,7 @@ cd cmd/$app-service/
 ./$app-service run
 ```
 
-## 清除k8s环境（miniku用户执行）
+## 清除k8s环境（minikube用户执行）
 ```
 su minikube
 ./dev-setup.sh -t destroy
