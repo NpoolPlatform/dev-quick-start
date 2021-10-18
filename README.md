@@ -35,7 +35,7 @@ $MY_HOSTIP apollo-configservice.kube-system.svc.cluster.local
 $MY_HOSTIP rabbitmq.kube-system.svc.cluster.local
 ```
 
-# 开始构建你的app(docker内执行)
+## 开始构建你的app(docker内执行)
 ```
 git clone https://github.com/NpoolPlatform/$appname.git
 cd $appname
@@ -53,20 +53,20 @@ make verify-build
 apphost=`cat cmd/*/*.viper.yaml | grep hostname | awk '{print $2}' | sed 's/"//g' | sed 's/\./-/g'`
 ```
 
-# 创建app需要的vhost以及权限设置(宿主机切换minikube用户执行)
+## 创建app需要的vhost以及权限设置(宿主机切换minikube用户执行)
 ```
 kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $apphost
 kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissions -p $apphost user ".*" ".*" ".*"
 ```
 
-# 运行app server(docker内执行)
+## 运行app server(docker内执行)
 ```
 cp output/linux/amd64/$app-service cmd/$appname/
 cd cmd/$app-service/
 ./$app-service run
 ```
 
-# 清除k8s环境
+## 清除k8s环境
 ```
 su minikube
 ./dev-setup.sh -t destroy
