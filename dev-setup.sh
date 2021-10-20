@@ -132,13 +132,13 @@ function install_rabbitmq() {
   rabbitmqaddress=`minikube service list | grep 15672 | awk '{ print $6 }' | awk -F '//' '{ print $2 }'`
   sudo cp nginx-conf/rabbitmq.conf /etc/nginx/conf.d/rabbitmq.conf
   sudo sed -i "s/127.0.0.1/$rabbitmqaddress/g" /etc/nginx/conf.d/rabbitmq.conf
-
-  sudo cp nginx-conf/nginx.conf /etc/nginx/nginx.conf
-  sudo mkdir -p /etc/nginx/stream.conf.d
-  sudo cp nginx-conf/rabbitmq-amqp.conf /etc/nginx/stream.conf.d/rabbitmq-amqp.conf
-  rabbitmqstreamaddress=`minikube service list | grep -w 5672 | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
-  sudo sed -i "s/127.0.0.1/$rabbitmqstreamaddress/g" /etc/nginx/stream.conf.d/rabbitmq-amqp.conf
   sudo nginx -s reload
+
+#  sudo cp nginx-conf/nginx.conf /etc/nginx/nginx.conf
+#  sudo mkdir -p /etc/nginx/stream.conf.d
+#  sudo cp nginx-conf/rabbitmq-amqp.conf /etc/nginx/stream.conf.d/rabbitmq-amqp.conf
+#  rabbitmqstreamaddress=`minikube service list | grep -w 5672 | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
+#  sudo sed -i "s/127.0.0.1/$rabbitmqstreamaddress/g" /etc/nginx/stream.conf.d/rabbitmq-amqp.conf
 }
 
 function run_devtest() {
