@@ -28,17 +28,12 @@ gpasswd -a minikube docker
   - username:user
   - password:12345679
 
-## 在运行k8s集群的虚机上运行开发环境docker
+## 开始构建你的app（k8s pod中执行）
 ```
-docker run -d -e ENV_ENVIRONMENT_TARGET=developnment -e ENV_CONSUL_HOST=http://$MY_HOSTIP -e ENV_CONSUL_PORT=8500 -e PATH=/go-go1.16.5/bin:$PATH -e GOPROXY=https://goproxy.cn,direct --name devtest -v /sys/fs/cgroup:/sys/fs/cgroup:ro --privileged catwo/devtest
-docker exec -it devtest /bin/bash
-/etc/hosts添加以下内容
-$MY_HOSTIP apollo-configservice.kube-system.svc.cluster.local
-$MY_HOSTIP rabbitmq.kube-system.svc.cluster.local
-```
-
-## 开始构建你的app（docker内执行）
-```
+su minikube
+minikube ssh
+dockerid=`docker ps -a | grep devtest | awk '{ print $1 }'`
+docker exec -it $dockerid /bin/bash
 git clone https://github.com/NpoolPlatform/$appname.git
 cd $appname
 go get -u golang.org/x/lint/golint
@@ -57,12 +52,18 @@ apphost=`cat cmd/*/*.viper.yaml | grep hostname | awk '{print $2}' | sed 's/"//g
 
 ## 创建app需要的vhost以及权限设置（宿主机切换minikube用户执行）
 ```
+su minikube
 kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $apphost
 kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissions -p $apphost user ".*" ".*" ".*"
 ```
 
-## 运行app server（docker内执行）
+## 运行app server（k8s pod中执行）
 ```
+su minikube
+minikube ssh
+dockerid=`docker ps -a | grep devtest | awk '{ print $1 }'`
+docker exec -it $dockerid /bin/bash
+cd $appname
 cp output/linux/amd64/$app-service cmd/$appname/
 cd cmd/$app-service/
 ./$app-service run
