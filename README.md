@@ -19,7 +19,7 @@ gpasswd -a minikube docker
 - 创建mysql-npool-top namespace以及key,value
   - username:root
   - password:12345679
-- 创建$appname namespace以及key,value
+- 创建$apphost namespace以及key,value(apphost=`cat cmd/*/*.viper.yaml | grep hostname | awk '{print $2}' | sed 's/"//g' | sed 's/\./-/g'`)
   - database_name:$app-databasename
 - 创建redis-npool-top namespace以及key,value
   - username:root
