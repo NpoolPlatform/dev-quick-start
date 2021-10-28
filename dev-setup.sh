@@ -3,21 +3,29 @@
 curuser=`whoami`
 [ "x$curuser" != "xminikube" ] && echo "You shoud login as minikube~" && exit 0
 
-LOG_FILE=/var/log/dev-quick-start.log
 function usage() {
   echo " $1 -[ti]"
-  echo "    -t action type [setup|destroy]"
+  echo "    -t action type [setup|destroy|config]"
   echo "    -i my host ip"
+  echo "    -A appid"
+  echo "    -H appid[x-x-npool-top]"
 }
 
 function info() {
-  echo " <I> $1 ~" >> $LOG_FILE
+  echo " <I> $1 ~"
 }
 
-while getopts 't:i:' OPT; do
+function error() {
+  echo " <E> $1 ~"
+  exit 1
+}
+
+while getopts 't:i:A:H:' OPT; do
   case $OPT in
     t) ACTION_TYPE=$OPTARG    ;;
-    i) MY_HOSTIP=$OPTARG    ;;
+    i) MY_HOSTIP=$OPTARG      ;;
+    A) APP_ID=$OPTARG         ;;
+    H) APP_HOST=$OPTARG       ;;
     *) usage                  ;;
   esac
 done
@@ -158,11 +166,22 @@ if [ "x$ACTION_TYPE" == "xsetup" ]; then
 fi
 
 if [ "x$ACTION_TYPE" == "xdestroy" ]; then
-  minikube delete
+  type minikube > /dev/null 2>&1
+  [ 0 -eq $? ] && minikube delete > /dev/null 2>&1
   sudo rm /home/minikube/.minikube/ -rf
   sudo iptables -F
 fi
 
-if [ "x$ACTION_type" == "xinfo" ]; then
-  echo "show k8s info"
+if [ "x$ACTION_TYPE" == "xinfo" ]; then
+  echo "CONSUL: http://\$NODEIP:8500"
+  echo "APOLLO: http://\$NODEIP:8070 apollp/admin"
+  echo "RABBITMQ: http://\$NODEIP:15672 user/12345679" 
+fi
+
+if [ "x$ACTION_TYPE" == "xconfig" ]; then
+  [ "x" == "x$APP_ID" ] && error "appid is must"
+  [ "x" == "x$APP_HOST" ] && error "app host is must"
+  kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $APP_HOST
+  kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissions -p $APP_HOST user ".*" ".*" ".*"
+  ./dev-docker/apollo-config.sh $APP_ID $APP_HOST
 fi
