@@ -12,8 +12,11 @@ gpasswd -a minikube docker
 - su minikube
 - ./dev-setup.sh -t setup -i $MY_HOSTIP
 
+## apollo添加基础服务配置-自动版（minikube用户执行）
+- su minikube
+- ./dev-setup.sh -t config -A $appid -H $apphost
 
-## apollo添加基础服务配置（http://$MY_HOSTIP:8070/）
+## apollo添加基础服务配置-手动版（http://$MY_HOSTIP:8070/）
 - 创建应用
 - 创建该应用development集群
 - 创建mysql-npool-top namespace以及key,value
@@ -46,11 +49,9 @@ make deps
 make verify
 make verify-build
 
-获取你的app hostname
-apphost=`cat cmd/*/*.viper.yaml | grep hostname | awk '{print $2}' | sed 's/"//g' | sed 's/\./-/g'`
 ```
 
-## 创建app需要的vhost以及权限设置（宿主机切换minikube用户执行）
+## 创建app需要的vhost以及权限设置-手动版（宿主机切换minikube用户执行）
 ```
 su minikube
 kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $apphost
