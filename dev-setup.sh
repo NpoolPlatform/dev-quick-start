@@ -4,10 +4,9 @@ curuser=`whoami`
 [ "x$curuser" != "xminikube" ] && echo "You shoud login as minikube~" && exit 0
 
 function usage() {
-  echo " $1 -[ti]"
+  echo " $1 -[tiH]"
   echo "    -t action type [setup|destroy|config]"
   echo "    -i my host ip"
-  echo "    -A appid"
   echo "    -H appid[x-x-npool-top]"
 }
 
@@ -20,11 +19,10 @@ function error() {
   exit 1
 }
 
-while getopts 't:i:A:H:' OPT; do
+while getopts 't:i:H:' OPT; do
   case $OPT in
     t) ACTION_TYPE=$OPTARG    ;;
     i) MY_HOSTIP=$OPTARG      ;;
-    A) APP_ID=$OPTARG         ;;
     H) APP_HOST=$OPTARG       ;;
     *) usage                  ;;
   esac
@@ -153,6 +151,18 @@ function run_devtest() {
   kubectl apply -f dev-docker/01-service-sample.yaml -n kube-system
 }
 
+function config_apollo() {
+  if [ ! "x" == "x$APP_HOST" ]; then
+    kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $APP_HOST
+    kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissions -p $APP_HOST user ".*" ".*" ".*"
+    ./dev-docker/apollo-service-sample-config.sh $APP_HOST
+  fi
+  ./dev-docker/apollo-appid-config.sh
+  ./dev-docker/apollo-mysql-config.sh
+  ./dev-docker/apollo-redis-config.sh
+  ./dev-docker/apollo-rabbitmq-config.sh
+}
+
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
 #  add_minikube_user
   install_tools
@@ -163,6 +173,7 @@ if [ "x$ACTION_TYPE" == "xsetup" ]; then
   install_apollo
   install_rabbitmq
   run_devtest
+  config_apollo
 fi
 
 if [ "x$ACTION_TYPE" == "xdestroy" ]; then
@@ -179,9 +190,6 @@ if [ "x$ACTION_TYPE" == "xinfo" ]; then
 fi
 
 if [ "x$ACTION_TYPE" == "xconfig" ]; then
-  [ "x" == "x$APP_ID" ] && error "appid is must"
   [ "x" == "x$APP_HOST" ] && error "app host is must"
-  kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $APP_HOST
-  kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissions -p $APP_HOST user ".*" ".*" ".*"
-  ./dev-docker/apollo-config.sh $APP_ID $APP_HOST
+  config_apollo
 fi
