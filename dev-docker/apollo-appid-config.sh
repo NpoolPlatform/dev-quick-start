@@ -1,7 +1,8 @@
 #!/bin/bash
 APP_ID="89089012783789789719823798127398"
 PASSWORD="12345679"
-ENVIRONMENT="development"
+CLUSTERNAME="development"
+ENVIRONMENT="DEVELOPMENT"
 APP_HOST="mysql-npool-top"
 
 # ApolloConfigDB
@@ -9,7 +10,7 @@ echo appid info
 mysql -uroot -p$PASSWORD -h 192.168.49.2 -P 30306 -D ApolloConfigDB -e "INSERT INTO App (AppId, Name, OrgId, OrgName, OwnerName, OwnerEmail,DataChange_CreatedBy, DataChange_LastModifiedBy) SELECT $APP_ID, \"test\", \"TEST1\", \"npool\", \"apollo\", \"apollo@acme.com\", \"apollo\", \"apollo\" FROM DUAL WHERE NOT EXISTS (SELECT * FROM App WHERE AppId=\"$APP_ID\");"
 
 echo cluster
-mysql -uroot -p$PASSWORD -h 192.168.49.2 -P 30306 -D ApolloConfigDB -e "INSERT INTO Cluster (Name, AppId, DataChange_CreatedBy, DataChange_LastModifiedBy) SELECT \"$ENVIRONMENT\", $APP_ID, \"apollo\", \"apollo\" FROM DUAL WHERE NOT EXISTS (SELECT * FROM Cluster WHERE AppId="$APP_ID" AND Name=\"$ENVIRONMENT\");"
+mysql -uroot -p$PASSWORD -h 192.168.49.2 -P 30306 -D ApolloConfigDB -e "INSERT INTO Cluster (Name, AppId, DataChange_CreatedBy, DataChange_LastModifiedBy) SELECT \"$CLUSTERNAME\", $APP_ID, \"apollo\", \"apollo\" FROM DUAL WHERE NOT EXISTS (SELECT * FROM Cluster WHERE AppId="$APP_ID" AND Name=\"$CLUSTERNAME\");"
 
 mysql -uroot -p$PASSWORD -h 192.168.49.2 -P 30306 -D ApolloPortalDB -e "INSERT INTO App (AppId, Name, OrgId, OrgName, OwnerName, OwnerEmail,DataChange_CreatedBy, DataChange_LastModifiedBy) SELECT $APP_ID, \"test\", \"TEST1\", \"npool\", \"apollo\", \"apollo@acme.com\", \"apollo\", \"apollo\" FROM DUAL WHERE NOT EXISTS (SELECT * FROM App WHERE AppId=\"$APP_ID\");"
 
