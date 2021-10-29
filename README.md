@@ -11,6 +11,7 @@ gpasswd -a minikube docker
 ## 快速搭建k8s测试环境（minikube用户执行）
 - su minikube
 - ./dev-setup.sh -t setup -i $MY_HOSTIP
+- 如果需要测试的仓库已创建，./dev-setup.sh -t setup -i $MY_HOSTIP -H $apphost
 
 ## apollo添加基础服务配置-自动版（minikube用户执行）
 - su minikube
