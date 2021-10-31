@@ -184,14 +184,14 @@ function config_apollo() {
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
 #  add_minikube_user
-#  install_tools
-#  start_minikube
-#  install_consul
-#  install_mysql
-#  install_redis
-#  install_apollo
-#  install_rabbitmq
-#  run_devtest
+  install_tools
+  start_minikube
+  install_consul
+  install_mysql
+  install_redis
+  install_apollo
+  install_rabbitmq
+  run_devtest
   config_apollo
 fi
 
