@@ -4,10 +4,11 @@ curuser=`whoami`
 [ "x$curuser" != "xminikube" ] && echo "You shoud login as minikube~" && exit 0
 
 function usage() {
-  echo " $1 -[tiH]"
+  echo " $1 -[tiHD]"
   echo "    -t action type [setup|destroy|config]"
   echo "    -i my host ip"
-  echo "    -H appid[x-x-npool-top]"
+  echo "    -H appid[service-sample-npool-top]"
+  echo "    -D database[service_sample]"
 }
 
 function info() {
@@ -19,11 +20,13 @@ function error() {
   exit 1
 }
 
-while getopts 't:i:H:' OPT; do
+while getopts 't:i:H:D:A:' OPT; do
   case $OPT in
     t) ACTION_TYPE=$OPTARG    ;;
     i) MY_HOSTIP=$OPTARG      ;;
     H) APP_HOST=$OPTARG       ;;
+    D) APP_DATABASE=$OPTARG   ;;
+    A) ALL_PROXY=$OPTARG      ;;
     *) usage                  ;;
   esac
 done
@@ -152,27 +155,43 @@ function run_devtest() {
 }
 
 function config_apollo() {
+  APP_ID="89089012783789789719823798127398"
+  ENVIRONMENT="development"
+  sudo rm apollo-base-config/ -rf
+  sudo all_proxy=$ALL_PROXY git clone https://github.com/NpoolPlatform/apollo-base-config.git
+  mysqlname=`kubectl get pods -A | grep mysql | awk '{print $2}'`
+  sudo sed -i "s/mysql-0/$mysqlname/g" ./apollo-base-config/*
   if [ ! "x" == "x$APP_HOST" ]; then
+    kubectl -n kube-system exec $mysqlname -- mysql -h 127.0.0.1 -uroot -p12345679 -P3306 -e "create database if not exists $APP_DATABASE;"
     kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl add_vhost $APP_HOST
     kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissions -p $APP_HOST user ".*" ".*" ".*"
-    ./dev-docker/apollo-service-sample-config.sh $APP_HOST
+    ./apollo-base-config/apollo-base-config.sh $APP_ID $ENVIRONMENT $APP_HOST
+    ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT $APP_HOST database_name $APP_DATABASE
   fi
-  ./dev-docker/apollo-appid-config.sh
-  ./dev-docker/apollo-mysql-config.sh
-  ./dev-docker/apollo-redis-config.sh
-  ./dev-docker/apollo-rabbitmq-config.sh
+  # add namespace
+  ./apollo-base-config/apollo-appid-config.sh $APP_ID $ENVIRONMENT
+  ./apollo-base-config/apollo-base-config.sh $APP_ID $ENVIRONMENT mysql-npool-top
+  ./apollo-base-config/apollo-base-config.sh $APP_ID $ENVIRONMENT redis-npool-top
+  ./apollo-base-config/apollo-base-config.sh $APP_ID $ENVIRONMENT rabbitmq-npool-top
+  # add item
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT mysql-npool-top username root
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT mysql-npool-top password 12345679
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT redis-npool-top username root
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT redis-npool-top password 12345679
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT rabbitmq-npool-top username user
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT rabbitmq-npool-top password 12345679
 }
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
 #  add_minikube_user
-  install_tools
-  start_minikube
-  install_consul
-  install_mysql
-  install_redis
-  install_apollo
-  install_rabbitmq
-  run_devtest
+#  install_tools
+#  start_minikube
+#  install_consul
+#  install_mysql
+#  install_redis
+#  install_apollo
+#  install_rabbitmq
+#  run_devtest
   config_apollo
 fi
 
