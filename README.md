@@ -35,10 +35,15 @@ gpasswd -a minikube docker
 
 ## 开始构建你的app（k8s pod中执行）
 ```
+ssh方法一
 su minikube
 minikube ssh
-dockerid=`docker ps -a | grep devtest | awk '{ print $1 }'`
+dockerid=`docker ps -a | grep box | awk '{ print $1 }'`
 docker exec -it $dockerid /bin/bash
+
+ssh方法二
+ssh -p 22222 root@192.168.49.2
+
 git clone https://github.com/NpoolPlatform/$appname.git
 cd $appname
 go get -u golang.org/x/lint/golint
@@ -62,10 +67,15 @@ kubectl exec -it --namespace kube-system rabbitmq-0 -- rabbitmqctl set_permissio
 
 ## 运行app server（k8s pod中执行）
 ```
+ssh方法一
 su minikube
 minikube ssh
-dockerid=`docker ps -a | grep devtest | awk '{ print $1 }'`
+dockerid=`docker ps -a | grep box | awk '{ print $1 }'`
 docker exec -it $dockerid /bin/bash
+
+ssh方法二
+ssh -p 22222 root@192.168.49.2
+
 cd $appname
 cp output/linux/amd64/$app-service cmd/$appname/
 cd cmd/$app-service/
@@ -82,3 +92,6 @@ su minikube
 - consul ```http://$MY_HOSTIP:8500/```
 - apollo ```http://$MY_HOSTIP:8070/```
 - rabbitmq ```http://$MY_HOSTIP:15672/```
+
+## 登陆mysql
+mysql -uroot -p12345679 -h 192.168.49.2 -P 30306
