@@ -1,22 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: devtest
+  name: development-box
   namespace: kube-system
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: devtest
+      app: development-box
   template:
     metadata:
       labels:
-        app: devtest
+        app: development-box
     spec:
       containers:
-      - name: devtest
-        image: catwo/devtest
-        imagePullPolicy: IfNotPresent
+      - name: development-box
+        image: entropypool/development-box:latest
+        imagePullPolicy: Always
         env:
         - name: ENV_ENVIRONMENT_TARGET
           valueFrom:
@@ -34,18 +33,24 @@ spec:
               name: system-environment
               key: environment.consul_port
         - name: PATH
-          value: "/go-go1.16.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+          value: "/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/bin"
         - name: GOPROXY
           value: "https://goproxy.cn,direct"
+        command: ["/usr/sbin/sshd", "-d"]
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: devtest
+  name: development-box
   namespace: kube-system
 spec:
+  type: LoadBalancer
   ports:
-  - name: api
-    port: 8081
-
+  - port: 22
+    targetPort: 22
+    nodePort: 22222
+    name: ssh
+    protocol: TCP
+  selector:
+    app: development-box
