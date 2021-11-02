@@ -39,9 +39,10 @@ ssh方法一
 su minikube
 minikube ssh
 dockerid=`docker ps -a | grep box | awk '{ print $1 }'`
-docker exec -it $dockerid /bin/bash
+service ssh restart
 
 ssh方法二
+需先执行方法一
 ssh -p 22222 root@192.168.49.2
 
 git clone https://github.com/NpoolPlatform/$appname.git
@@ -72,8 +73,10 @@ su minikube
 minikube ssh
 dockerid=`docker ps -a | grep box | awk '{ print $1 }'`
 docker exec -it $dockerid /bin/bash
+service ssh restart
 
 ssh方法二
+需先执行方法一
 ssh -p 22222 root@192.168.49.2
 
 cd $appname
