@@ -151,7 +151,7 @@ function install_rabbitmq() {
 }
 
 function install_minio() {
-  helm install minio --namespace kube-system --set accessKey=root,secretKey=12345679,server.replicas=1,service.type=NodePort minio/minio
+  helm install -f minio/values.service.yaml minio --namespace kube-system ./minio/minio
   minioaddress=`minikube service list | grep minio | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
   sudo cp nginx-conf/minio.conf /etc/nginx/conf.d/minio.conf
   sudo sed -i "s/127.0.0.1/$minioaddress/g" /etc/nginx/conf.d/minio.conf

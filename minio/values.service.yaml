@@ -1,0 +1,10 @@
+replicaCount: 1
+fullNameOverride: "minio"
+image:
+  repository: entropypool/minio
+  tag: RELEASE.2021-02-14T04-01-33Z
+  pullPolicy: IfNotPresent
+service:
+  type: NodePort
+accessKey: root
+secretKey: "12345679"
