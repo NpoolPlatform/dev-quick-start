@@ -96,6 +96,7 @@ su minikube
 - consul ```http://$MY_HOSTIP:8500/```
 - apollo ```http://$MY_HOSTIP:8070/```
 - rabbitmq ```http://$MY_HOSTIP:15672/```
+- minio ```http://$MY_HOSTIP:9000/```
 
 ## 登陆mysql
 mysql -uroot -p12345679 -h 192.168.49.2 -P 30306
