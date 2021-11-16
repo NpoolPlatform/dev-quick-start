@@ -150,6 +150,14 @@ function install_rabbitmq() {
 #  sudo sed -i "s/127.0.0.1/$rabbitmqstreamaddress/g" /etc/nginx/stream.conf.d/rabbitmq-amqp.conf
 }
 
+function install_minio() {
+  helm install minio --namespace kube-system --set accessKey=root,secretKey=12345679,server.replicas=1,service.type=NodePort minio/minio
+  minioaddress=`minikube service list | grep minio | awk '{ print $8 }' | awk -F '//' '{ print $2 }'`
+  sudo cp nginx-conf/minio.conf /etc/nginx/conf.d/minio.conf
+  sudo sed -i "s/127.0.0.1/$minioaddress/g" /etc/nginx/conf.d/minio.conf
+  sudo nginx -s reload
+}
+
 function run_devtest() {
   kubectl apply -f dev-docker/01-service-sample.yaml -n kube-system
 }
@@ -173,6 +181,7 @@ function config_apollo() {
   ./apollo-base-config/apollo-base-config.sh $APP_ID $ENVIRONMENT mysql-npool-top
   ./apollo-base-config/apollo-base-config.sh $APP_ID $ENVIRONMENT redis-npool-top
   ./apollo-base-config/apollo-base-config.sh $APP_ID $ENVIRONMENT rabbitmq-npool-top
+  ./apollo-base-config/apollo-base-config.sh $APP_ID $ENVIRONMENT minio-npool-top
   # add item
   ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT mysql-npool-top username root
   ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT mysql-npool-top password 12345679
@@ -180,6 +189,8 @@ function config_apollo() {
   ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT redis-npool-top password 12345679
   ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT rabbitmq-npool-top username user
   ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT rabbitmq-npool-top password 12345679
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT minio-npool-top username root
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT minio-npool-top password 12345679
 }
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
@@ -191,6 +202,7 @@ if [ "x$ACTION_TYPE" == "xsetup" ]; then
   install_redis
   install_apollo
   install_rabbitmq
+  install_minio
   run_devtest
   config_apollo
 fi
