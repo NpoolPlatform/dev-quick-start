@@ -189,8 +189,8 @@ function config_apollo() {
   ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT redis-npool-top password 12345679
   ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT rabbitmq-npool-top username user
   ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT rabbitmq-npool-top password 12345679
-  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT minio-npool-top accessKey root
-  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT minio-npool-top secretKey 12345679
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT minio-npool-top accesskey root
+  ./apollo-base-config/apollo-item-config.sh $APP_ID $ENVIRONMENT minio-npool-top secretkey 12345679
 }
 
 if [ "x$ACTION_TYPE" == "xsetup" ]; then
