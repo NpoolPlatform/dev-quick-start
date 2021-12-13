@@ -36,3 +36,10 @@ spec:
         env:
         - name: BASE_URL
           value: /
+        volumeMounts:
+        - name: json
+          mountPath: /usr/share/nginx/html/data
+      volumes:
+      - name: json
+        persistentVolumeClaim:
+          claimName: swagger-ui-pvc

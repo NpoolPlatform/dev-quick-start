@@ -1,0 +1,6 @@
+commonLabels:
+  # app: swagger-ui
+
+resources:
+- 01-pv-pvc.yaml
+- 02-swagger-ui.yaml
