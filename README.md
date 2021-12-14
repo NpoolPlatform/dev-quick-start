@@ -16,6 +16,7 @@ gpasswd -a minikube docker
 ## apollo添加基础服务配置-自动版（minikube用户执行）
 - su minikube
 - ./dev-setup.sh -t config -A $appid -H $apphost -D $app_database -A $all_proxy
+- appid取yaml中的配置，apphost为hostname将'.'替换成'-'
 - 登陆apollo页面，选择app应用后点击发布即可
 
 ## apollo添加基础服务配置-手动版（http://$MY_HOSTIP:8070/）
